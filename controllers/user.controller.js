@@ -106,4 +106,13 @@ exports.getUsers = async (req, res) => {
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
+};
+
+exports.getTotalReferrals = async (req, res) => {
+    try {
+        const totalReferrals = await User.countDocuments({ referredBy: { $ne: null } });
+        res.json({ success: true, totalReferrals });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error fetching total referrals', error: error.message });
+    }
 }; 
