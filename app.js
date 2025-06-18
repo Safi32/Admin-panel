@@ -5,20 +5,18 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 require('dotenv').config();
 
-// Import routes
+
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
+const courseRoutes = require('./routes/course.routes');
 
 const app = express();
-
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
-// Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/zerokoin-admin', {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -26,11 +24,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/zerokoin-
 .then(() => console.log('Connected to MongoDB'))
 .catch((err) => console.error('MongoDB connection error:', err));
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/courses', courseRoutes);
 
-// Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'success',
@@ -39,7 +36,7 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Error handling middleware
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({

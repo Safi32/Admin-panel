@@ -115,4 +115,41 @@ exports.getTotalReferrals = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error fetching total referrals', error: error.message });
     }
+};
+
+exports.banUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findByIdAndUpdate(id, { isActive: false }, { new: true });
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        res.json({ success: true, message: 'User banned', user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error banning user', error: error.message });
+    }
+};
+
+exports.unbanUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findByIdAndUpdate(id, { isActive: true }, { new: true });
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        res.json({ success: true, message: 'User unbanned', user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error unbanning user', error: error.message });
+    }
+};
+
+exports.manualCoinTransfer = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { amount } = req.body;
+        if (amount <= 0) return res.status(400).json({ success: false, message: 'Amount must be positive' });
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        user.balance = (user.balance || 0) + amount;
+        await user.save();
+        res.json({ success: true, message: 'Coins transferred', user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error transferring coins', error: error.message });
+    }
 }; 
