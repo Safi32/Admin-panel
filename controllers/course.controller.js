@@ -2,13 +2,10 @@ const Course = require('../models/course.model');
 
 exports.uploadCourse = async (req, res) => {
     try {
-        const { courseName, numberOfPages, title, content, timeManagement } = req.body;
+        const { courseName, pages } = req.body;
         const course = new Course({
             courseName,
-            numberOfPages,
-            title,
-            content,
-            timeManagement,
+            pages,
             uploadedBy: req.user._id
         });
         await course.save();
@@ -21,10 +18,10 @@ exports.uploadCourse = async (req, res) => {
 exports.editCourse = async (req, res) => {
     try {
         const { id } = req.params;
-        const { courseName, numberOfPages, title, content, timeManagement } = req.body;
+        const { courseName, pages } = req.body;
         const course = await Course.findByIdAndUpdate(
             id,
-            { courseName, numberOfPages, title, content, timeManagement },
+            { courseName, pages },
             { new: true }
         );
         if (!course) return res.status(404).json({ success: false, message: 'Course not found' });

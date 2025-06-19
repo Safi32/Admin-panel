@@ -152,4 +152,42 @@ exports.manualCoinTransfer = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error transferring coins', error: error.message });
     }
+};
+
+exports.changePassword = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { oldPassword, newPassword, confirmPassword } = req.body;
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ success: false, message: 'Passwords do not match' });
+        }
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+        const isMatch = await user.comparePassword(oldPassword);
+        if (!isMatch) return res.status(400).json({ success: false, message: 'Old password is incorrect' });
+        user.password = newPassword;
+        await user.save();
+        res.json({ success: true, message: 'Password changed successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error changing password', error: error.message });
+    }
+};
+
+exports.getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        res.json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error fetching profile', error: error.message });
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    try {
+        const { username } = req.body;
+        const user = await User.findByIdAndUpdate(req.user._id, { username }, { new: true }).select('-password');
+        res.json({ success: true, user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error updating profile', error: error.message });
+    }
 }; 
