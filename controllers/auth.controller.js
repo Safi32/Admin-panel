@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user.model');
 const { validationResult } = require('express-validator');
 
-// Generate JWT Token
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET || 'your-secret-key', {
         expiresIn: '24h'
@@ -18,7 +17,7 @@ exports.register = async (req, res) => {
 
         const { username, email, password } = req.body;
 
-        // Check if user already exists
+
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
             return res.status(400).json({
@@ -27,17 +26,17 @@ exports.register = async (req, res) => {
             });
         }
 
-        // Create new user
+        
         const user = new User({
             username,
             email,
             password,
-            role: 'admin' // First user will be admin
+            role: 'admin'
         });
 
         await user.save();
 
-        // Generate token
+        
         const token = generateToken(user._id);
 
         res.status(201).json({
@@ -71,7 +70,7 @@ exports.login = async (req, res) => {
 
         const { email, password } = req.body;
 
-        // Find user
+        
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({
@@ -80,7 +79,7 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Check password
+        
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return res.status(401).json({
@@ -89,11 +88,11 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Update last login
+        
         user.lastLogin = new Date();
         await user.save();
 
-        // Generate token
+        
         const token = generateToken(user._id);
 
         res.json({

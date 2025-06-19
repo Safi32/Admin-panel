@@ -9,6 +9,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const courseRoutes = require('./routes/course.routes');
+const pageRoutes = require('./routes/page.routes');
 
 const app = express();
 app.use(express.json());
@@ -27,6 +28,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/zerokoin-
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/pages', pageRoutes);
 
 app.get('/health', (req, res) => {
     res.status(200).json({

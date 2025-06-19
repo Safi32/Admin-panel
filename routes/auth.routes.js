@@ -4,7 +4,7 @@ const authController = require('../controllers/auth.controller');
 
 const router = express.Router();
 
-// Validation middleware
+
 const registerValidation = [
     body('username')
         .trim()
@@ -27,7 +27,7 @@ const loginValidation = [
         .withMessage('Password is required')
 ];
 
-// Routes
+
 router.post('/register', registerValidation, authController.register);
 router.post('/login', loginValidation, authController.login);
 
