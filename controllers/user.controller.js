@@ -206,4 +206,31 @@ exports.getTotalConnectedWallets = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error fetching wallet count', error: error.message });
     }
+};
+
+exports.getCalculatorUsers = async (req, res) => {
+    try {
+        const users = await User.find({ calculatorUsageCount: { $gt: 0 } });
+        res.json({ success: true, users });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error fetching calculator users', error: error.message });
+    }
+};
+
+exports.getTotalCalculatorUsage = async (req, res) => {
+    try {
+        // Aggregate the sum of calculatorUsage for all users
+        const result = await User.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalCalculatorUsage: { $sum: "$calculatorUsage" }
+                }
+            }
+        ]);
+        const totalCalculatorUsage = result[0]?.totalCalculatorUsage || 0;
+        res.json({ success: true, totalCalculatorUsage });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error fetching total calculator usage', error: error.message });
+    }
 }; 

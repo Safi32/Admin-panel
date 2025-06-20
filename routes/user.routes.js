@@ -13,5 +13,7 @@ router.post('/:id/coin-transfer', protect, authorize('superadmin'), userControll
 router.post('/change-password', protect, userController.changePassword);
 router.get('/profile', protect, userController.getProfile);
 router.put('/profile', protect, userController.updateProfile);
+router.get('/calculator-users', userController.getCalculatorUsers);
+router.get('/total-calculator-usage', userController.getTotalCalculatorUsage);
 
 module.exports = router; 
