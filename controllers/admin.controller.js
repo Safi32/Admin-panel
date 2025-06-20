@@ -64,4 +64,39 @@ exports.adminRegister = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error in admin registration', error: error.message });
     }
+};
+
+// Get all admins
+exports.getAdmins = async (req, res) => {
+    try {
+        const admins = await Admin.find().select('-password');
+        res.json({ success: true, admins });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error fetching admins', error: error.message });
+    }
+};
+
+// Edit admin
+exports.editAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username, email, role } = req.body;
+        const admin = await Admin.findByIdAndUpdate(id, { username, email, role }, { new: true }).select('-password');
+        if (!admin) return res.status(404).json({ success: false, message: 'Admin not found' });
+        res.json({ success: true, admin });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error editing admin', error: error.message });
+    }
+};
+
+// Delete admin
+exports.deleteAdmin = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const admin = await Admin.findByIdAndDelete(id);
+        if (!admin) return res.status(404).json({ success: false, message: 'Admin not found' });
+        res.json({ success: true, message: 'Admin deleted' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error deleting admin', error: error.message });
+    }
 }; 
