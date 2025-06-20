@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/', userController.getUsers);
 router.get('/total-referrals', userController.getTotalReferrals);
+router.get('/total-wallets', userController.getTotalConnectedWallets);
 router.post('/:id/ban', protect, authorize('superadmin'), userController.banUser);
 router.post('/:id/unban', protect, authorize('superadmin'), userController.unbanUser);
 router.post('/:id/coin-transfer', protect, authorize('superadmin'), userController.manualCoinTransfer);

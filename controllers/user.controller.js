@@ -190,4 +190,20 @@ exports.updateProfile = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error updating profile', error: error.message });
     }
+};
+
+exports.getTotalConnectedWallets = async (req, res) => {
+    try {
+        // Count users where at least one wallet address is not null or empty
+        const totalWallets = await User.countDocuments({
+            $or: [
+                { "walletAddresses.metamask": { $ne: null, $exists: true, $ne: "" } },
+                { "walletAddresses.trustWallet": { $ne: null, $exists: true, $ne: "" } }
+                // Add more wallet types if you support them
+            ]
+        });
+        res.json({ success: true, totalWallets });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error fetching wallet count', error: error.message });
+    }
 }; 
