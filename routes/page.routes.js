@@ -1,13 +1,21 @@
 const express = require('express');
 const pageController = require('../controllers/page.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.post('/', protect, authorize('superadmin', 'editor'), pageController.addPage);
+// Add a new page
+router.post('/', pageController.addPage);
+
+// Get all active pages
 router.get('/', pageController.getPages);
+
+// Get a page by slug
 router.get('/:slug', pageController.getPageBySlug);
-router.put('/:id', protect, authorize('superadmin', 'editor'), pageController.updatePage);
-router.delete('/:id', protect, authorize('superadmin', 'editor'), pageController.deletePage);
+
+// Update a page
+router.put('/:id', pageController.updatePage);
+
+// Delete a page
+router.delete('/:id', pageController.deletePage);
 
 module.exports = router; 

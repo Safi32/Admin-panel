@@ -36,6 +36,17 @@ const userSchema = new mongoose.Schema({
     lastLogin: {
         type: Date,
         index: true
+    },
+    balance: {
+        type: Number,
+        default: 0
+    },
+    points: {
+        type: Number,
+        default: 0
+    },
+    walletAddresses: {
+        // ... existing code ...
     }
 }, {
     timestamps: true
