@@ -9,6 +9,10 @@ const notificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    imageUrl: {
+        type: String,
+        default: null
+    },
     type: {
         type: String,
         enum: ['general', 'top-users', 'single-user'],
