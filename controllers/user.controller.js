@@ -233,4 +233,29 @@ exports.getTotalCalculatorUsage = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Error fetching total calculator usage', error: error.message });
     }
+};
+
+// Edit a user's balance directly
+exports.editUserBalance = async (req, res) => {
+    try {
+        const { firebaseUid, newBalance } = req.body;
+
+        if (typeof newBalance !== 'number' || newBalance < 0) {
+            return res.status(400).json({ success: false, message: 'Invalid balance amount provided.' });
+        }
+
+        const user = await User.findOneAndUpdate(
+            { firebaseUid: firebaseUid },
+            { $set: { balance: newBalance } },
+            { new: true } // This option returns the updated document
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        res.status(200).json({ success: true, message: "User balance updated successfully.", user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to update user balance.', error: error.message });
+    }
 }; 

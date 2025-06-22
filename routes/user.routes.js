@@ -15,5 +15,6 @@ router.get('/profile', userController.getProfile);
 router.put('/profile',  userController.updateProfile);
 router.get('/calculator-users', userController.getCalculatorUsers);
 router.get('/total-calculator-usage', userController.getTotalCalculatorUsage);
+router.put('/edit-balance', userController.editUserBalance);
 
 module.exports = router; 
