@@ -2,15 +2,22 @@ const Course = require('../models/course.model');
 
 exports.uploadCourse = async (req, res) => {
     try {
-        const { courseName, pages } = req.body;
+        const { courseName, pages, uploadedBy } = req.body;
+
+        if (!courseName || !pages || !uploadedBy) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+
         const course = new Course({
             courseName,
             pages,
-            uploadedBy: req.user._id
+            uploadedBy
         });
+
         await course.save();
         res.status(201).json({ success: true, course });
     } catch (error) {
+        console.error("Upload error:", error);
         res.status(500).json({ success: false, message: 'Error uploading course', error: error.message });
     }
 };
