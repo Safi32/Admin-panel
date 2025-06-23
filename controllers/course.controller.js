@@ -2,28 +2,14 @@ const Course = require('../models/course.model');
 
 // Create/upload a new course
 exports.uploadCourse = async (req, res) => {
-<<<<<<< HEAD
   try {
     const { courseName, pages, uploadedBy } = req.body;
 
     // Validation
     if (!courseName || !Array.isArray(pages) || pages.length === 0 || !uploadedBy) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
-=======
-    try {
-        const { courseName, pages } = req.body;
-        const course = new Course({
-            courseName,
-            pages,
-            uploadedBy: req.user._id
-        });
-        await course.save();
-        res.status(201).json({ success: true, course });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error uploading course', error: error.message });
->>>>>>> 307b55a9176454cdc001fe430b1e2d210b68e3d2
     }
-    }
+
     const course = new Course({
       courseName,
       pages,
