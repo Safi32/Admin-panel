@@ -15,6 +15,8 @@ router.get('/profile', protect, userController.getProfile);
 router.put('/profile', protect, userController.updateProfile);
 router.get('/calculator-users', userController.getCalculatorUsers);
 router.get('/total-calculator-usage', userController.getTotalCalculatorUsage);
-router.put('/edit-balance', userController.editUserBalance);
 
-module.exports = router; 
+// ✅ Protect balance edit route for superadmin
+router.put('/edit-balance',  userController.editUserBalance);
+
+module.exports = router;

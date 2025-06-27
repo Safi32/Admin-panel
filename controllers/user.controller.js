@@ -1,5 +1,7 @@
 const User = require('../models/user.model');
 const { validationResult } = require('express-validator');
+const Transfer = require('../models/transfer.model'); // ✅ Fix for "Transfer is not defined"
+const { generateTransactionId } = require('../utils/helpers'); // For transaction ID generation
 
 
 const CACHE_DURATION = 300; 
@@ -236,26 +238,63 @@ exports.getTotalCalculatorUsage = async (req, res) => {
 };
 
 // Edit a user's balance directly
+
 exports.editUserBalance = async (req, res) => {
-    try {
-        const { firebaseUid, newBalance } = req.body;
+  try {
+    const { firebaseUid, newBalance } = req.body;
+    const adminName = req.user?.name || "System";
 
-        if (typeof newBalance !== 'number' || newBalance < 0) {
-            return res.status(400).json({ success: false, message: 'Invalid balance amount provided.' });
-        }
-
-        const user = await User.findOneAndUpdate(
-            { firebaseUid: firebaseUid },
-            { $set: { balance: newBalance } },
-            { new: true } // This option returns the updated document
-        );
-
-        if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found.' });
-        }
-
-        res.status(200).json({ success: true, message: "User balance updated successfully.", user });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Failed to update user balance.', error: error.message });
+    if (!firebaseUid || typeof newBalance !== "number" || newBalance < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid input: firebaseUid and positive number required.",
+      });
     }
-}; 
+
+    // Step 1: Find user
+    const user = await User.findOne({ firebaseUid });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    const balanceBefore = user.balance || 0;
+
+    // Step 2: Update balance
+    user.balance = newBalance;
+    await user.save();
+
+    // Step 3: Log transaction
+    await Transfer.create({
+      transactionId: generateTransactionId(),
+      firebaseUid: user.firebaseUid,
+      userName: user.name,
+      userId: user._id,
+      balanceBefore,
+      balanceAfter: newBalance,
+      amountChanged: newBalance - balanceBefore,
+      senderName: adminName,
+      timestamp: new Date()
+    });
+
+    // Step 4: Return response
+    return res.status(200).json({
+      success: true,
+      message: "User balance updated and transaction recorded.",
+      user,
+      transaction: {
+        balanceBefore,
+        newBalance,
+        amountChanged: newBalance - balanceBefore,
+        timestamp: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error("editUserBalance error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update user balance.",
+      error: error.message,
+    });
+  }
+};
