@@ -38,33 +38,60 @@ exports.adminLogin = async (req, res) => {
 };
 
 exports.adminRegister = async (req, res) => {
-    try {
-        const { username, email, password, role } = req.body;
-        // Check if admin already exists
-        const existingAdmin = await Admin.findOne({ $or: [{ email }, { username }] });
-        if (existingAdmin) {
-            return res.status(400).json({ success: false, message: 'Admin already exists with this email or username' });
-        }
-        const admin = new Admin({ username, email, password, role });
-        await admin.save();
-        const token = generateToken(admin._id);
-        res.status(201).json({
-            success: true,
-            message: 'Admin registered successfully',
-            data: {
-                token,
-                admin: {
-                    id: admin._id,
-                    username: admin.username,
-                    email: admin.email,
-                    role: admin.role
-                }
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: 'Error in admin registration', error: error.message });
+  try {
+    console.log("Incoming admin registration payload:", req.body);
+
+    const { username, email, password, role } = req.body;
+
+    if (!username || !email || !password || !role) {
+      console.log("❌ Missing fields");
+      return res.status(400).json({
+        success: false,
+        message: 'All fields (username, email, password, role) are required.',
+      });
     }
+
+    const existingAdmin = await Admin.findOne({
+      $or: [{ email }, { username }],
+    });
+
+    if (existingAdmin) {
+      console.log("❌ Admin already exists:", existingAdmin.email);
+      return res.status(400).json({
+        success: false,
+        message: 'Admin already exists with this email or username',
+      });
+    }
+
+    const admin = new Admin({ username, email, password, role });
+    await admin.save();
+    console.log("✅ Admin saved successfully:", admin.email);
+
+    const token = generateToken(admin._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin registered successfully',
+      data: {
+        token,
+        admin: {
+          id: admin._id,
+          username: admin.username,
+          email: admin.email,
+          role: admin.role,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("🔥 Admin registration error:", error);
+    res.status(500).json({
+      success: false,
+      message: 'Error in admin registration',
+      error: error.message,
+    });
+  }
 };
+
 
 // Get all admins
 exports.getAdmins = async (req, res) => {
